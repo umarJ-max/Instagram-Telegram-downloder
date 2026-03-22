@@ -26,7 +26,9 @@ def send_photo_with_caption(chat_id, photo_url, caption):
 
 
 def get_bot_photo():
-    res = requests.get(f"{TELEGRAM_API}/getUserProfilePhotos", params={"user_id": "me"})
+    me = requests.get(f"{TELEGRAM_API}/getMe").json()
+    bot_id = me["result"]["id"]
+    res = requests.get(f"{TELEGRAM_API}/getUserProfilePhotos", params={"user_id": bot_id})
     photos = res.json().get("result", {}).get("photos", [])
     if not photos:
         return None
