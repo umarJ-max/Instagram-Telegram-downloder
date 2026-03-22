@@ -74,9 +74,8 @@ class handler(BaseHTTPRequestHandler):
             else:
                 send_video(chat_id, video_url)
                 send(chat_id,
-                     f"✅ <b>Here's your video, {first_name}!</b>\n\n"
-                     f"<i>Enjoyed the bot? Share it with friends 🚀</i>\n"
-                     f"<i>Made by <a href='https://t.me/umarj_1'>@umarj_1</a></i>")
+                    f"✅ <b>Here's your video, {first_name}!</b>\n\n"
+                    f"<i>Enjoyed the bot? Share it with friends 🚀</i>")
         except Exception as e:
             send(chat_id, f"❌ <b>Error:</b> <code>{str(e)}</code>")
 
