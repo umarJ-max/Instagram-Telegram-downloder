@@ -38,7 +38,9 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             res = requests.get(f"{API_BASE}/igdl", params={"url": text}, timeout=30)
-            video_url = res.json().get("url")
+            data = res.json()
+            items = data.get("data") or []
+            video_url = items[0].get("url") if items else data.get("url")
 
             if not video_url:
                 send(chat_id, "Could not fetch the video. Try again.")
