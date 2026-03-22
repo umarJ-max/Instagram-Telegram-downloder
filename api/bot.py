@@ -4,7 +4,7 @@ import requests
 from http.server import BaseHTTPRequestHandler
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-API_BASE = os.getenv("VERCEL_API_URL")
+API_BASE = os.getenv("INSTA_API_URL")
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 
