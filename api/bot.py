@@ -9,7 +9,7 @@ TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 
 def send(chat_id, text):
-    requests.post(f"{TELEGRAM_API}/sendMessage", json={"chat_id": chat_id, "text": text})
+    requests.post(f"{TELEGRAM_API}/sendMessage", json={"chat_id": chat_id, "text": text, "parse_mode": "HTML"})
 
 
 def send_video(chat_id, video_url):
@@ -29,20 +29,34 @@ class handler(BaseHTTPRequestHandler):
             self._ok()
             return
 
+        first_name = message.get("from", {}).get("first_name", "there")
+
         if text == "/start":
-            send(chat_id, "👋 Welcome to Instagram Downloader Bot!\n\n"
-                          "📥 Just send me any Instagram link and I'll download it for you.\n\n"
-                          "Supports: Reels, Posts, Videos\n\n"
-                          "Made by @umarj_1")
+            send(chat_id,
+                 f"╔══════════════════╗\n"
+                 f"   🎬 <b>Insta Downloader</b>\n"
+                 f"╚══════════════════╝\n\n"
+                 f"👋 Hey <b>{first_name}</b>, welcome!\n\n"
+                 f"📲 Send me any <b>Instagram</b> link and I'll\n"
+                 f"fetch the video for you instantly.\n\n"
+                 f"━━━━━━━━━━━━━━━━━━━━\n"
+                 f"✅  Reels  •  Posts  •  Videos\n"
+                 f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                 f"🔗 Just paste the link below ↓\n\n"
+                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>")
             self._ok()
             return
 
         if "instagram.com" not in text:
-            send(chat_id, "⚠️ Please send a valid Instagram link.\n\nExample:\nhttps://www.instagram.com/reel/...")
+            send(chat_id,
+                 f"⚠️ <b>Invalid Link!</b>\n\n"
+                 f"Please send a valid Instagram link.\n\n"
+                 f"<i>Example:</i>\n"
+                 f"<code>https://www.instagram.com/reel/...</code>")
             self._ok()
             return
 
-        send(chat_id, "Downloading...")
+        send(chat_id, "⏳ <b>Downloading your video...</b>\nPlease wait a moment!")
 
         try:
             res = requests.get(f"{API_BASE}/igdl", params={"url": text}, timeout=30)
@@ -51,12 +65,20 @@ class handler(BaseHTTPRequestHandler):
             video_url = items[0].get("url") if items else data.get("url")
 
             if not video_url:
-                send(chat_id, "❌ Could not fetch the video. Make sure the link is correct and the account is public.")
+                send(chat_id,
+                     "❌ <b>Download Failed!</b>\n\n"
+                     "Couldn't fetch the video. Make sure:\n"
+                     "• The link is correct\n"
+                     "• The account is <b>public</b>\n"
+                     "• The post still exists")
             else:
                 send_video(chat_id, video_url)
-                send(chat_id, "✅ Downloaded!\n\nBot by @umarj_1")
+                send(chat_id,
+                     f"✅ <b>Here's your video, {first_name}!</b>\n\n"
+                     f"<i>Enjoyed the bot? Share it with friends 🚀</i>\n"
+                     f"<i>Made by <a href='https://t.me/umarj_1'>@umarj_1</a></i>")
         except Exception as e:
-            send(chat_id, f"Error: {str(e)}")
+            send(chat_id, f"❌ <b>Error:</b> <code>{str(e)}</code>")
 
         self._ok()
 
