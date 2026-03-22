@@ -29,8 +29,16 @@ class handler(BaseHTTPRequestHandler):
             self._ok()
             return
 
+        if text == "/start":
+            send(chat_id, "👋 Welcome to Instagram Downloader Bot!\n\n"
+                          "📥 Just send me any Instagram link and I'll download it for you.\n\n"
+                          "Supports: Reels, Posts, Videos\n\n"
+                          "Made by @umarj_1")
+            self._ok()
+            return
+
         if "instagram.com" not in text:
-            send(chat_id, "Please send a valid Instagram link.")
+            send(chat_id, "⚠️ Please send a valid Instagram link.\n\nExample:\nhttps://www.instagram.com/reel/...")
             self._ok()
             return
 
@@ -43,9 +51,10 @@ class handler(BaseHTTPRequestHandler):
             video_url = items[0].get("url") if items else data.get("url")
 
             if not video_url:
-                send(chat_id, "Could not fetch the video. Try again.")
+                send(chat_id, "❌ Could not fetch the video. Make sure the link is correct and the account is public.")
             else:
                 send_video(chat_id, video_url)
+                send(chat_id, "✅ Downloaded!\n\nBot by @umarj_1")
         except Exception as e:
             send(chat_id, f"Error: {str(e)}")
 
