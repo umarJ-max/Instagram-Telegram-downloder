@@ -16,6 +16,26 @@ def send_video(chat_id, video_url):
     requests.post(f"{TELEGRAM_API}/sendVideo", json={"chat_id": chat_id, "video": video_url}, timeout=60)
 
 
+def send_photo_with_caption(chat_id, photo_url, caption):
+    requests.post(f"{TELEGRAM_API}/sendPhoto", json={
+        "chat_id": chat_id,
+        "photo": photo_url,
+        "caption": caption,
+        "parse_mode": "HTML"
+    })
+
+
+def get_bot_photo():
+    res = requests.get(f"{TELEGRAM_API}/getUserProfilePhotos", params={"user_id": "me"})
+    photos = res.json().get("result", {}).get("photos", [])
+    if not photos:
+        return None
+    file_id = photos[0][0]["file_id"]
+    file_res = requests.get(f"{TELEGRAM_API}/getFile", params={"file_id": file_id})
+    file_path = file_res.json()["result"]["file_path"]
+    return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
@@ -32,18 +52,24 @@ class handler(BaseHTTPRequestHandler):
         first_name = message.get("from", {}).get("first_name", "there")
 
         if text == "/start":
-            send(chat_id,
-                 f"╔══════════════════╗\n"
-                 f"   🎬 <b>Insta Downloader</b>\n"
-                 f"╚══════════════════╝\n\n"
-                 f"👋 Hey <b>{first_name}</b>, welcome!\n\n"
-                 f"📲 Send me any <b>Instagram</b> link and I'll\n"
-                 f"fetch the video for you instantly.\n\n"
-                 f"━━━━━━━━━━━━━━━━━━━━\n"
-                 f"✅  Reels  •  Posts  •  Videos\n"
-                 f"━━━━━━━━━━━━━━━━━━━━\n\n"
-                 f"🔗 Just paste the link below ↓\n\n"
-                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>")
+            bot_photo = get_bot_photo()
+            caption = (
+                f"╔══════════════════╗\n"
+                f"   🎬 <b>Insta Downloader</b>\n"
+                f"╚══════════════════╝\n\n"
+                f"👋 Hey <b>{first_name}</b>, welcome!\n\n"
+                f"📲 Send me any <b>Instagram</b> link and I'll\n"
+                f"fetch the video for you instantly.\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"✅  Reels  •  Posts  •  Videos\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"🔗 Just paste the link below ↓\n\n"
+                f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
+            )
+            if bot_photo:
+                send_photo_with_caption(chat_id, bot_photo, caption)
+            else:
+                send(chat_id, caption)
             self._ok()
             return
 
