@@ -24,20 +24,33 @@ def get_bot_profile_pic():
     try:
         # Get bot's own profile photos using the bot's user ID
         bot_user_id = BOT_TOKEN.split(":")[0]
-        response = requests.post(f"{TELEGRAM_API}/getUserProfilePhotos", json={"user_id": bot_user_id})
+        response = requests.post(f"{TELEGRAM_API}/getUserProfilePhotos", json={"user_id": bot_user_id}, timeout=5)
         data = response.json()
         if data.get("ok") and data.get("result", {}).get("photos"):
             photos = data["result"]["photos"]
             if photos and photos[0]:
                 # Get the highest resolution photo
                 file_id = photos[0][-1]["file_id"]
-                file_info = requests.post(f"{TELEGRAM_API}/getFile", json={"file_id": file_id}).json()
+                file_info = requests.post(f"{TELEGRAM_API}/getFile", json={"file_id": file_id}, timeout=5).json()
                 if file_info.get("ok"):
                     file_path = file_info["result"]["file_path"]
                     return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
     except Exception as e:
         print(f"Error getting bot profile pic: {e}")
     return None
+
+
+def send_profile_pic_with_welcome(chat_id, welcome_message):
+    # Try to get and send profile picture with caption
+    try:
+        bot_profile_pic = get_bot_profile_pic()
+        if bot_profile_pic:
+            send_photo_with_caption(chat_id, bot_profile_pic, welcome_message)
+        else:
+            send(chat_id, welcome_message)
+    except:
+        # Fallback to text message if anything fails
+        send(chat_id, welcome_message)
 
 
 class handler(BaseHTTPRequestHandler):
@@ -70,9 +83,8 @@ class handler(BaseHTTPRequestHandler):
                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
             )
             
-            # For now, send text message to ensure bot works
-            # Profile picture feature can be added later
-            send(chat_id, welcome_message)
+            # Send profile picture with welcome message (with fallback)
+            send_profile_pic_with_welcome(chat_id, welcome_message)
             self._ok()
             return
 
