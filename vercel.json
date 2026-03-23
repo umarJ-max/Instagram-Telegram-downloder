@@ -10,10 +10,6 @@
     {
       "src": "/webhook",
       "dest": "api/bot.py"
-    },
-    {
-      "src": "/bot-profile-image.jpg",
-      "dest": "api/bot-profile-image.jpg"
     }
   ]
 }
