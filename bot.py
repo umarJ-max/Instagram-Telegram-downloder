@@ -65,6 +65,19 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await msg.edit_text("Sending video...")
         await update.message.reply_video(video=video_url)
         await msg.delete()
+        
+        # Send beautiful success message
+        first_name = update.message.from_user.first_name
+        await update.message.reply_text(
+            f"╔══════════════════╗\n"
+            f"   ✅ <b>Video Ready!</b>\n"
+            f"╚══════════════════╝\n\n"
+            f"🎬 <b>Here's your video, {first_name}!</b>\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"🚀 Enjoyed the bot? Share it with friends!\n"
+            f"━━━━━━━━━━━━━━━━━━━━",
+            parse_mode="HTML"
+        )
 
     except Exception as e:
         await msg.edit_text(f"Error: {str(e)}")
