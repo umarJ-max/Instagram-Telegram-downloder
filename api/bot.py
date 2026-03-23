@@ -83,8 +83,9 @@ class handler(BaseHTTPRequestHandler):
                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
             )
             
-            # Send profile picture with welcome message (with fallback)
-            send_profile_pic_with_welcome(chat_id, welcome_message)
+            # Use a static profile picture URL (replace with your image URL)
+            profile_pic_url = "https://i.imgur.com/3Q9FvYx.jpeg"  # Replace this with your bot's profile picture URL
+            send_photo_with_caption(chat_id, profile_pic_url, welcome_message)
             self._ok()
             return
 
