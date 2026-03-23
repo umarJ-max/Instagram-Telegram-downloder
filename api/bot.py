@@ -83,9 +83,8 @@ class handler(BaseHTTPRequestHandler):
                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
             )
             
-            # Use local profile picture served by Vercel
-            profile_pic_url = f"{API_BASE}/bot-profile-image.jpg"
-            send_photo_with_caption(chat_id, profile_pic_url, welcome_message)
+            # Send text message to ensure bot works
+            send(chat_id, welcome_message)
             self._ok()
             return
 
