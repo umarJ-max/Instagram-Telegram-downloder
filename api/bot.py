@@ -16,6 +16,28 @@ def send_video(chat_id, video_url):
     requests.post(f"{TELEGRAM_API}/sendVideo", json={"chat_id": chat_id, "video": video_url}, timeout=60)
 
 
+def send_photo_with_caption(chat_id, photo_url, caption):
+    requests.post(f"{TELEGRAM_API}/sendPhoto", json={"chat_id": chat_id, "photo": photo_url, "caption": caption, "parse_mode": "HTML"}, timeout=60)
+
+
+def get_bot_profile_pic():
+    try:
+        response = requests.get(f"{TELEGRAM_API}/getUserProfilePhotos", json={"user_id": BOT_TOKEN.split(":")[0]})
+        data = response.json()
+        if data.get("ok") and data.get("result", {}).get("photos"):
+            photos = data["result"]["photos"]
+            if photos and photos[0]:
+                # Get the highest resolution photo
+                file_id = photos[0][-1]["file_id"]
+                file_info = requests.get(f"{TELEGRAM_API}/getFile", json={"file_id": file_id}).json()
+                if file_info.get("ok"):
+                    file_path = file_info["result"]["file_path"]
+                    return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+    except:
+        pass
+    return None
+
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
@@ -32,18 +54,27 @@ class handler(BaseHTTPRequestHandler):
         first_name = message.get("from", {}).get("first_name", "there")
 
         if text == "/start":
-            send(chat_id,
-                 f"╔══════════════════╗\n"
-                 f"   🎬 <b>Insta Downloader</b>\n"
-                 f"╚══════════════════╝\n\n"
-                 f"👋 Hey <b>{first_name}</b>, welcome!\n\n"
-                 f"📲 Send me any <b>Instagram</b> link and I'll\n"
-                 f"fetch the video for you instantly.\n\n"
-                 f"━━━━━━━━━━━━━━━━━━━━\n"
-                 f"✅  Reels  •  Posts  •  Videos\n"
-                 f"━━━━━━━━━━━━━━━━━━━━\n\n"
-                 f"🔗 Just paste the link below ↓\n\n"
-                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>")
+            welcome_message = (
+                f"╔══════════════════╗\n"
+                f"   🎬 <b>Insta Downloader</b>\n"
+                f"╚══════════════════╝\n\n"
+                f"👋 Hey <b>{first_name}</b>, welcome!\n\n"
+                f"📲 Send me any <b>Instagram</b> link and I'll\n"
+                f"fetch the video for you instantly.\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"✅  Reels  •  Posts  •  Videos\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"🔗 Just paste the link below ↓\n\n"
+                f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
+            )
+            
+            # Get bot's profile picture and send with caption
+            bot_profile_pic = get_bot_profile_pic()
+            if bot_profile_pic:
+                send_photo_with_caption(chat_id, bot_profile_pic, welcome_message)
+            else:
+                # Fallback to text message if no profile picture
+                send(chat_id, welcome_message)
             self._ok()
             return
 
