@@ -83,8 +83,23 @@ class handler(BaseHTTPRequestHandler):
                 f"<i>Made with ❤️ by <a href='https://t.me/umarj_1'>@umarj_1</a></i>"
             )
             
-            # Send text message to ensure bot works
-            send(chat_id, welcome_message)
+            # Send welcome message with bot profile picture using Telegram's built-in feature
+            try:
+                # First send the profile picture
+                bot_info = requests.post(f"{TELEGRAM_API}/getMe").json()
+                if bot_info.get("ok"):
+                    bot_user_id = bot_info["result"]["id"]
+                    profile_photos = requests.post(f"{TELEGRAM_API}/getUserProfilePhotos", json={"user_id": bot_user_id, "limit": 1}).json()
+                    if profile_photos.get("ok") and profile_photos.get("result", {}).get("photos"):
+                        file_id = profile_photos["result"]["photos"][0][0]["file_id"]
+                        requests.post(f"{TELEGRAM_API}/sendPhoto", json={"chat_id": chat_id, "photo": file_id}, timeout=10)
+                
+                # Then send the welcome message
+                send(chat_id, welcome_message)
+            except:
+                # Fallback to text message only
+                send(chat_id, welcome_message)
+            
             self._ok()
             return
 
