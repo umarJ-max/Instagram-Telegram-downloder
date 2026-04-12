@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-API_BASE = os.getenv("VERCEL_API_URL")  # e.g. https://your-app.vercel.app
+API_BASE = os.getenv("VERCEL_API_URL")  # e.g. https://your-app.vercel.app ok
 
 
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
